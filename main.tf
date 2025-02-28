@@ -49,7 +49,7 @@ resource "null_resource" "ansible_provision" {
       chmod 400 /home/danielazeez/todoapp.pem  # Ensure key permissions
       which ansible-playbook || { echo "Ansible not installed! Exiting."; exit 1; }
 
-      ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ../ansible/inventory.ini ../ansible/playbook.yml --private-key /home/danielazeez/todoapp.pem
+      ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ./ansible/inventory.ini ./ansible/playbook.yml --private-key /home/danielazeez/todoapp.pem
     EOT
   }
 }
