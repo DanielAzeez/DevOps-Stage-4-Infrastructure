@@ -57,10 +57,10 @@ ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ansible/inventory.ini ansibl
 ## File Structure
 ```
 DevOps-Stage-4-Infrastructure/
-│── terraform/
-│   ├── main.tf  # Terraform configuration for EC2 and security groups
-│   ├── variables.tf  # Define Terraform variables
-│   ├── outputs.tf  # Capture Terraform outputs
+
+├── main.tf  # Terraform configuration for EC2 and security groups
+├── variables.tf  # Define Terraform variables
+├── outputs.tf  # Capture Terraform outputs
 │── ansible/
 │   ├── inventory.ini  # Automatically generated inventory file
 │   ├── playbook.yml  # Ansible playbook for configuration and deployment
