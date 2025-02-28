@@ -1,0 +1,13 @@
+# Ignore Terraform local files
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+
+# Ignore sensitive files
+*.pem
+*.key
+.env
+
+# Ignore Python virtual environment (if using one)
+.venv/
+__pycache__/

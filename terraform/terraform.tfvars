@@ -1,0 +1,5 @@
+aws_region = "eu-north-1"
+instance_type = "t2.micro"
+key_name = "todoapp"
+security_group_id = "sg-07d28fc51f1ad7e13"
+elastic_ip = "51.21.154.65"
