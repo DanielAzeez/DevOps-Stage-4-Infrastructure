@@ -3,10 +3,10 @@ provider "aws" {
 }
 
 resource "aws_instance" "app_server" {
-  ami             = "ami-09a9858973b288bdd"  # Change to your preferred AMI
+  ami             = "ami-09a9858973b288bdd"
   instance_type   = "t2.micro"
-  key_name        = "todoapp"  # Your SSH key pair
-  security_groups = ["sg-07d28fc51f1ad7e13"]  # Use a list (square brackets)
+  key_name        = "todoapp"
+  vpc_security_group_ids = ["sg-07d28fc51f1ad7e13"]  # Corrected
 
   tags = {
     Name = "DevOps-Stage-4-Instance"
