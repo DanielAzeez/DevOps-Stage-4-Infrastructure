@@ -24,18 +24,18 @@ resource "aws_eip_association" "eip_assoc" {
   allocation_id = data.aws_eip.existing_eip.id
 }
 
-# Generate Ansible inventory file with correct key path
+# Generate Ansible inventory file in the correct folder
 resource "local_file" "inventory" {
   content  = <<EOT
 [app_server]
 ${aws_instance.app_server.public_ip} ansible_ssh_user=ubuntu ansible_ssh_private_key_file=/home/danielazeez/todoapp.pem
 EOT
-  filename = "${path.module}/ansible/inventory.ini"
+  filename = "${path.module}/../ansible/inventory.ini"  # ✅ Fixed path
 }
 
 # Run Ansible automatically after Terraform completes
 resource "null_resource" "ansible_provision" {
-  depends_on = [aws_instance.app_server]
+  depends_on = [aws_instance.app_server, local_file.inventory]
 
   provisioner "local-exec" {
     command = <<EOT
@@ -49,7 +49,7 @@ resource "null_resource" "ansible_provision" {
       chmod 400 /home/danielazeez/todoapp.pem  # Ensure key permissions
       which ansible-playbook || { echo "Ansible not installed! Exiting."; exit 1; }
 
-      ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ansible/inventory.ini ansible/playbook.yml --private-key /home/danielazeez/todoapp.pem
+      ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ../ansible/inventory.ini ../ansible/playbook.yml --private-key /home/danielazeez/todoapp.pem
     EOT
   }
 }
