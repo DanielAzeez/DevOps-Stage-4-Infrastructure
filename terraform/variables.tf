@@ -11,7 +11,7 @@ variable "key_name" {
 }
 
 variable "security_group_id" {
-  default = "sg-07d28fc51f1ad7e13"  # Use your actual security group ID
+  default = "sg-07d28fc51f1ad7e13" # Use your actual security group ID
 }
 
 variable "elastic_ip" {
