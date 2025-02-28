@@ -30,7 +30,7 @@ resource "local_file" "inventory" {
 [app_server]
 ${aws_instance.app_server.public_ip} ansible_ssh_user=ubuntu ansible_ssh_private_key_file=/home/danielazeez/todoapp.pem
 EOT
-  filename = "${path.module}/../ansible/inventory.ini"  # ✅ Fixed path
+  filename = "${path.module}/../ansible/inventory.ini"  # Adjusted path for inventory.ini
 }
 
 # Run Ansible automatically after Terraform completes
