@@ -39,8 +39,13 @@ resource "null_resource" "ansible_provision" {
 
   provisioner "local-exec" {
     command = <<EOT
-      sleep 30  # Wait for instance startup
+      echo "Waiting for EC2 instance to be reachable..."
+      while ! nc -z ${aws_instance.app_server.public_ip} 22; do sleep 5; done
+      echo "Instance is up. Running Ansible playbook..."
+      
       chmod 400 ~/.ssh/todoapp.pem  # Ensure key permissions
+      which ansible-playbook || { echo "Ansible not installed! Exiting."; exit 1; }
+      
       ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ansible/inventory.ini ansible/playbook.yml --private-key ~/.ssh/todoapp.pem
     EOT
   }
