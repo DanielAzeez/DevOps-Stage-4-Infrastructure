@@ -13,34 +13,35 @@ resource "aws_instance" "app_server" {
   }
 }
 
-# Fetch the existing Elastic IP (51.21.154.65)
+# Fetch the existing Elastic IP
 data "aws_eip" "existing_eip" {
   public_ip = "51.21.154.65"
 }
 
-# Associate the existing Elastic IP with the new instance
+# Associate the existing Elastic IP with the instance
 resource "aws_eip_association" "eip_assoc" {
   instance_id   = aws_instance.app_server.id
   allocation_id = data.aws_eip.existing_eip.id
 }
 
-# Generate Ansible inventory file dynamically
+# Generate Ansible inventory file
 resource "local_file" "inventory" {
   content  = <<EOT
 [app_server]
-${aws_instance.app_server.public_ip} ansible_ssh_user=ubuntu ansible_ssh_private_key_file=~/.ssh/todoapp.pem
+${aws_instance.app_server.public_ip} ansible_ssh_user=ubuntu ansible_private_key_file=~/.ssh/todoapp.pem
 EOT
   filename = "${path.module}/ansible/inventory.ini"
 }
 
-# Trigger Ansible Playbook Execution
+# Automatically trigger Ansible after Terraform completes
 resource "null_resource" "ansible_provision" {
-  depends_on = [aws_instance.app_server, local_file.inventory]
+  depends_on = [aws_instance.app_server]
 
   provisioner "local-exec" {
     command = <<EOT
-      chmod 600 ~/.ssh/todoapp.pem  # Ensure key has correct permissions
-      ansible-playbook -i ${path.module}/ansible/inventory.ini ${path.module}/ansible/playbook.yml
+      sleep 30  # Wait for instance startup
+      chmod 400 ~/.ssh/todoapp.pem  # Ensure key permissions
+      ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ansible/inventory.ini ansible/playbook.yml --private-key ~/.ssh/todoapp.pem
     EOT
   }
 }
