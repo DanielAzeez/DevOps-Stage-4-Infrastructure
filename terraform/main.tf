@@ -1,12 +1,12 @@
 provider "aws" {
-  region = "eu-north-1" # Change to your AWS region
+  region = "eu-north-1"
 }
 
 resource "aws_instance" "app_server" {
   ami                    = "ami-09a9858973b288bdd"
   instance_type          = "t3.micro"
   key_name               = "todoapp"
-  vpc_security_group_ids = ["sg-07d28fc51f1ad7e13"] # Corrected
+  vpc_security_group_ids = ["sg-07d28fc51f1ad7e13"]
 
   tags = {
     Name = "DevOps-Stage-4-Instance"
@@ -24,29 +24,32 @@ resource "aws_eip_association" "eip_assoc" {
   allocation_id = data.aws_eip.existing_eip.id
 }
 
-# Generate Ansible inventory file
+# Generate Ansible inventory file with correct key path
 resource "local_file" "inventory" {
   content  = <<EOT
 [app_server]
-${aws_instance.app_server.public_ip} ansible_ssh_user=ubuntu ansible_private_key_file=~/.ssh/todoapp.pem
+${aws_instance.app_server.public_ip} ansible_ssh_user=ubuntu ansible_ssh_private_key_file=/home/danielazeez/todoapp.pem
 EOT
   filename = "${path.module}/ansible/inventory.ini"
 }
 
-# Automatically trigger Ansible after Terraform completes
+# Trigger Ansible playbook after instance is ready
 resource "null_resource" "ansible_provision" {
   depends_on = [aws_instance.app_server]
 
   provisioner "local-exec" {
     command = <<EOT
       echo "Waiting for EC2 instance to be reachable..."
-      while ! nc -z ${aws_instance.app_server.public_ip} 22; do sleep 5; done
+      until ssh -o StrictHostKeyChecking=no -i /home/danielazeez/todoapp.pem ubuntu@${aws_instance.app_server.public_ip} 'exit' 2>/dev/null; do
+        sleep 5
+      done
+
       echo "Instance is up. Running Ansible playbook..."
       
-      chmod 400 ~/.ssh/todoapp.pem  # Ensure key permissions
+      chmod 400 /home/danielazeez/todoapp.pem  # Ensure key permissions
       which ansible-playbook || { echo "Ansible not installed! Exiting."; exit 1; }
-      
-      ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ansible/inventory.ini ansible/playbook.yml --private-key ~/.ssh/todoapp.pem
+
+      ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ansible/inventory.ini ansible/playbook.yml --private-key /home/danielazeez/todoapp.pem
     EOT
   }
 }
