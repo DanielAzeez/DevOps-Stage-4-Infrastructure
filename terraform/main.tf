@@ -24,11 +24,23 @@ resource "aws_eip_association" "eip_assoc" {
   allocation_id = data.aws_eip.existing_eip.id
 }
 
+# Generate Ansible inventory file dynamically
 resource "local_file" "inventory" {
   content  = <<EOT
 [app_server]
-${aws_instance.app_server.public_ip} ansible_ssh_user=ubuntu ansible_private_key_file=~/.ssh/todoapp.pem
+${aws_instance.app_server.public_ip} ansible_ssh_user=ubuntu ansible_ssh_private_key_file=~/.ssh/todoapp.pem
 EOT
   filename = "${path.module}/ansible/inventory.ini"
 }
 
+# Trigger Ansible Playbook Execution
+resource "null_resource" "ansible_provision" {
+  depends_on = [aws_instance.app_server, local_file.inventory]
+
+  provisioner "local-exec" {
+    command = <<EOT
+      chmod 600 ~/.ssh/todoapp.pem  # Ensure key has correct permissions
+      ansible-playbook -i ${path.module}/ansible/inventory.ini ${path.module}/ansible/playbook.yml
+    EOT
+  }
+}

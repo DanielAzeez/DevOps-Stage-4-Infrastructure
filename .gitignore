@@ -1,13 +1,5 @@
-# Ignore Terraform local files
-.terraform/
+*.pem
 terraform.tfstate
 terraform.tfstate.backup
-
-# Ignore sensitive files
-*.pem
-*.key
-.env
-
-# Ignore Python virtual environment (if using one)
-.venv/
-__pycache__/
+.terraform/
+ansible/inventory.ini
