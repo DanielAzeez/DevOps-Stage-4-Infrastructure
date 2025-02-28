@@ -33,7 +33,7 @@ EOT
   filename = "${path.module}/ansible/inventory.ini"
 }
 
-# Trigger Ansible playbook after instance is ready
+# Run Ansible automatically after Terraform completes
 resource "null_resource" "ansible_provision" {
   depends_on = [aws_instance.app_server]
 
